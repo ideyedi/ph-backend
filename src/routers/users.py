@@ -5,7 +5,7 @@ from fastapi import (APIRouter,
 from fastapi.responses import PlainTextResponse
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, select
 
 from src.db import get_db
 from src.models.users import UserModel
@@ -25,6 +25,9 @@ class TblUser(Base):
     user_pw = Column(String)
     description = Column(String)
 
+    def __repr__(self) -> str:
+        return f"User(id={self.id}, user_id={self.user_id}, user_pw={self.user_pw}, description={self.description})"
+
 
 @router.post("")
 async def signup_user():
@@ -34,9 +37,16 @@ async def signup_user():
 @router.get("")
 async def get_user_info():
     ret = 0
-    sess: Session = get_db()
-    ret = sess.query(TblUser).all()
+    print('1')
+    sess: Session = next(get_db())
+    print('2')
+    ret = select(TblUser)
+    print('3')
+
     print(ret)
+    for item in sess.scalars(ret):
+        print(item)
+
     pass
 
 
