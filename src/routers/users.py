@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 from sqlalchemy.orm import Session
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, select, delete, insert
+from sqlalchemy import Column, Integer, String, select, delete
 
 from src.db import get_db
 from src.models.users import UserModel
@@ -51,9 +51,10 @@ async def signup_user(data: UserModel):
     #ret = insert(TblUser).values(user_id=data.identify, user_pw=get_hashed_pw(data.password), description=data.description)
     #print(ret)
     user = TblUser(user_id=data.identify, user_pw=get_hashed_pw(data.password), description=data.description)
+    # Commit & Save
     sess.add(user)
     sess.commit()
-    
+
     return "OK"
 
 
@@ -87,9 +88,19 @@ async def login_user(user_id: int, user_pw: str):
 
     # 아이디가 없으면 로그인 불가 처리
     for item in sess.scalars(ret):
-        print(item)
+        print(int(item.user_id), str(item.user_pw), item.description)
+        user = UserModel(identify=int(item.user_id), password=str(item.user_pw), decription=str(item.description))
 
-    pass
+    print(user)
+    print(user.identify, user.password, user.description)
+    print(decode_hashed_pw(user_pw, user.password))
+    if decode_hashed_pw(user_pw, user.password):
+        tokens = {
+            "access_token": create_access_token(user.identify),
+            "refresh_token": create_refresh_token(user.identify),
+        }
+
+    return "OK"
 
 
 @router.delete("/session", response_class=PlainTextResponse, summary="logout user")
