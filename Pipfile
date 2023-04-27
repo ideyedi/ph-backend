@@ -9,6 +9,9 @@ uvicorn = "==0.21.1"
 sqlalchemy = "==2.0.10"
 requests = "==2.28.2"
 mysql-connector-python = "==8.0.33"
+python-jose = "==3.3.0"
+passlib = "==1.7.4"
+bcrypt = "*"
 
 [dev-packages]
 
