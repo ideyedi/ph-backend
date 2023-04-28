@@ -6,11 +6,10 @@ from fastapi.responses import PlainTextResponse
 from fastapi.security import OAuth2PasswordRequestForm
 
 from sqlalchemy.orm import Session
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, select, delete
+from sqlalchemy import select, delete
 
 from src.db import get_db
-from src.models.users import UserModel
+from src.models.users import UserModel, TblUser
 from src.utils import (get_hashed_pw,
                        decode_hashed_pw,
                        create_access_token,
@@ -18,20 +17,6 @@ from src.utils import (get_hashed_pw,
                        )
 
 router = APIRouter(prefix="/users", tags=["users"])
-
-Base = declarative_base()
-
-
-class TblUser(Base):
-    __tablename__ = "tbl_user"
-
-    id = Column(Integer, primary_key=True)
-    user_id = Column(String)
-    user_pw = Column(String)
-    description = Column(String)
-
-    def __repr__(self) -> str:
-        return f"User(id={self.id}, user_id={self.user_id}, user_pw={self.user_pw}, description={self.description})"
 
 
 @router.post("")
@@ -48,8 +33,6 @@ async def signup_user(data: UserModel):
     for item in sess.scalars(ret):
         print(item)
 
-    #ret = insert(TblUser).values(user_id=data.identify, user_pw=get_hashed_pw(data.password), description=data.description)
-    #print(ret)
     user = TblUser(user_id=data.identify, user_pw=get_hashed_pw(data.password), description=data.description)
     # Commit & Save
     sess.add(user)
