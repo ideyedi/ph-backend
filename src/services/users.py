@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from src.db import get_db
 
 
 class Users:

@@ -7,7 +7,7 @@ from sqlalchemy import Column, Integer, String, select, delete
 Base = declarative_base()
 
 
-class TblUser(Base):
+class DAOUsers(Base):
     __tablename__ = "tbl_user"
 
     id = Column(Integer, primary_key=True)
@@ -19,7 +19,7 @@ class TblUser(Base):
         return f"User(id={self.id}, user_id={self.user_id}, user_pw={self.user_pw}, description={self.description})"
 
 
-class UserModel(BaseModel):
-    identify: int
-    password: str
+class ModelUsers(BaseModel):
+    user_id: int
+    user_pw: str
     description: Optional[str]

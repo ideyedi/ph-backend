@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select, delete
 
 from src.db import get_db
-from src.models.users import UserModel, TblUser
+from src.models.users import DAOUsers, ModelUsers
 from src.utils import (get_hashed_pw,
                        decode_hashed_pw,
                        create_access_token,
@@ -20,7 +20,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.post("")
-async def signup_user(data: UserModel):
+async def signup_user(data: ModelUsers):
     """
     회원 가입
     :param data:
@@ -28,12 +28,12 @@ async def signup_user(data: UserModel):
     """
     sess: Session = next(get_db())
 
-    ret = select(TblUser).filter(TblUser.user_id == f"{data.identify}")
+    ret = select(DAOUsers).filter(DAOUsers.user_id == f"{data.user_id}")
     # 데이터가 있으면 회원가입 불가 처리
     for item in sess.scalars(ret):
         print(item)
 
-    user = TblUser(user_id=data.identify, user_pw=get_hashed_pw(data.password), description=data.description)
+    user = DAOUsers(user_id=data.user_id, user_pw=get_hashed_pw(data.user_pw), description=data.description)
     # Commit & Save
     sess.add(user)
     sess.commit()
@@ -42,14 +42,14 @@ async def signup_user(data: UserModel):
 
 
 @router.get("")
-async def get_user_info(data: UserModel):
+async def get_user_info(data: ModelUsers):
     """
     탈퇴
     :return:
     """
     sess: Session = next(get_db())
     # 아이디 패스워드가 맞는지 확인 후 삭제하는 로직 추가 필요
-    ret = delete(TblUser).filter(TblUser.user_id == f"{data.identify}")
+    ret = delete(DAOUsers).filter(DAOUsers.user_id == f"{data.user_id}")
 
     for item in sess.scalars(ret):
         print(item)
@@ -67,20 +67,20 @@ async def login_user(user_id: int, user_pw: str):
     """
     sess: Session = next(get_db())
 
-    ret = select(TblUser).filter(TblUser.user_id == f"{user_id}")
+    ret = select(DAOUsers).filter(DAOUsers.user_id == f"{user_id}")
 
     # 아이디가 없으면 로그인 불가 처리
     for item in sess.scalars(ret):
         print(int(item.user_id), str(item.user_pw), item.description)
-        user = UserModel(identify=int(item.user_id), password=str(item.user_pw), decription=str(item.description))
+        user = ModelUsers(user_id=int(item.user_id), user_pw=str(item.user_pw), decription=str(item.description))
 
     print(user)
-    print(user.identify, user.password, user.description)
-    print(decode_hashed_pw(user_pw, user.password))
-    if decode_hashed_pw(user_pw, user.password):
+    print(user.user_id, user.user_pw, user.description)
+    print(decode_hashed_pw(user_pw, user.user_pw))
+    if decode_hashed_pw(user_pw, user.user_pw):
         tokens = {
-            "access_token": create_access_token(user.identify),
-            "refresh_token": create_refresh_token(user.identify),
+            "access_token": create_access_token(user.user_id),
+            "refresh_token": create_refresh_token(user.user_id),
         }
 
     return "OK"
