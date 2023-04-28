@@ -1,14 +1,16 @@
 from fastapi import (APIRouter,
                      status,
                      HTTPException,
+                     Depends
                      )
 from fastapi.responses import (PlainTextResponse,
                                JSONResponse,
+                               RedirectResponse,
                                )
 from fastapi.security import OAuth2PasswordRequestForm
 
 from sqlalchemy.orm import Session
-from sqlalchemy import select, delete
+from sqlalchemy import select
 
 from src.db import get_db
 from src.models.users import DAOUsers, ModelUsers
@@ -19,6 +21,8 @@ from src.utils import (get_hashed_pw,
                        )
 
 from src.services.users import Users as UserService
+from src.dependency import get_current_user
+
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -54,21 +58,21 @@ async def get_user_info(data: ModelUsers):
     o = UserService(user_id=data.user_id)
 
 
-@router.post("/session", response_class=JSONResponse, summary="login user")
-async def login_user(user_id: int, user_pw: str):
+@router.post("/session", summary="login user")
+async def login_user(form_data: OAuth2PasswordRequestForm = Depends()):
     """
     Login
     :param user_id:
     :param user_pw:
     :return:
     """
-    o = UserService(user_id=user_id)
-    user = o.select_user()
+    s = UserService(uid=form_data.username, upw=form_data.password)
+    user = s.select_user()
     print(user)
     print(user.user_id, user.user_pw, user.description)
-    print(decode_hashed_pw(user_pw, user.user_pw))
+    print(decode_hashed_pw(form_data.password, user.user_pw))
 
-    if decode_hashed_pw(user_pw, user.user_pw):
+    if decode_hashed_pw(form_data.password, user.user_pw):
         tokens = {
             "access_token": create_access_token(user.user_id),
             "refresh_token": create_refresh_token(user.user_id),
@@ -87,4 +91,9 @@ async def logout_user():
     Logout
     :return:
     """
+    pass
+
+
+@router.get("/me", response_model=ModelUsers)
+async def get_my_info(user: ModelUsers = Depends(get_current_user)):
     pass
