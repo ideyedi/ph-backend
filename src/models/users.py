@@ -12,7 +12,7 @@ class DAOUsers(Base):
     __tablename__ = "tbl_user"
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(String)
+    user_id = Column(Integer)
     user_pw = Column(String)
     description = Column(String)
 

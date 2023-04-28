@@ -24,28 +24,19 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         token_data = TokenPayload(**payload)
         print(token_data.sub)
 
-        # Token time check
         if datetime.fromtimestamp(token_data.exp) < datetime.now():
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token expired",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+            # Expired Token Error handled
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
     except(jwt.JWTError, ValidationError):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="",
-            headers="",
-        )
+        print("ideyedi")
+        # Info Validated Error
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 
-    s = UserService(UsersModel)
-    s.user_id = token_data.sub
-    user: UsersModel = s.select_user()
-    print(user.user_id, user.description)
+    s = UserService(user_id=token_data.sub, user_pw=None)
+    user = s.select_user()
+    print(user)
+
     if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Could not find user",
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
 
-    return UsersModel(**user)
+    return user

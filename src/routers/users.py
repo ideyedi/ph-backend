@@ -87,4 +87,4 @@ async def login_user(form_data: OAuth2PasswordRequestForm = Depends()):
 
 @router.get("/me", response_model=UsersModel)
 async def get_my_info(user: UsersModel = Depends(get_current_user)):
-    return user.user_id
+    return user
