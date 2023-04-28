@@ -24,7 +24,8 @@ class Users:
         # 아이디가 없으면 로그인 불가 처리, 데이터가 없을 경우 예외 처리도 필요
         ret = select(DAOUsers).filter(DAOUsers.user_id == f"{self.user_id}")
 
-        return UsersModel(user_id=sess.scalar(ret).user_id,
+        return UsersModel(id=sess.scalar(ret).id,
+                          user_id=sess.scalar(ret).user_id,
                           user_pw=sess.scalar(ret).user_pw,
                           description=sess.scalar(ret).description)
 

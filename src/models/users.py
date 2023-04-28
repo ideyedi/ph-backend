@@ -21,6 +21,7 @@ class DAOUsers(Base):
 
 
 class UsersModel(BaseModel):
+    id: int
     user_id: int
     user_pw: str
     description: Optional[str]
