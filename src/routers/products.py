@@ -7,13 +7,13 @@ from src.models.products import ProductsModel
 from src.services.products import Products as ProdService
 
 from src.models.users import UsersModel
-from src.dependency import get_current_user
+from src.dependency import authentic_user
 
 router = APIRouter(prefix="/products", tags=["products"])
 
 
 @router.post("")
-async def create_product(data: ProductsModel, user: UsersModel = Depends(get_current_user)):
+async def create_product(data: ProductsModel, user: UsersModel = Depends(authentic_user)):
     s = ProdService(data)
     ret = s.create()
 
@@ -21,7 +21,7 @@ async def create_product(data: ProductsModel, user: UsersModel = Depends(get_cur
 
 
 @router.get("")
-async def get_product(page: Optional[int] = 1, user: UsersModel = Depends(get_current_user)):
+async def get_product(page: Optional[int] = 1, user: UsersModel = Depends(authentic_user)):
     s = ProdService(ProductsModel)
     print(user.id, page)
     ret = s.get_by_userId(user_id=user.id, page=page)
@@ -30,7 +30,7 @@ async def get_product(page: Optional[int] = 1, user: UsersModel = Depends(get_cu
 
 
 @router.delete("")
-async def delete_product(prod_id: int, user: UsersModel = Depends(get_current_user)):
+async def delete_product(prod_id: int, user: UsersModel = Depends(authentic_user)):
     s = ProdService(ProductsModel)
     ret = s.delete(prod_id)
     print(ret)
@@ -38,7 +38,7 @@ async def delete_product(prod_id: int, user: UsersModel = Depends(get_current_us
 
 
 @router.patch("")
-async def update_product(prod_id: int, data: ProductsModel, user: UsersModel = Depends(get_current_user)):
+async def update_product(prod_id: int, data: ProductsModel, user: UsersModel = Depends(authentic_user)):
     # JWT에 해당하는 유저에 따라서 값을 조회하도록 구현
     s = ProdService(data)
     ret = s.update(prod_id, data)

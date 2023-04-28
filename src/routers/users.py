@@ -21,7 +21,7 @@ from src.utils import (get_hashed_pw,
                        )
 
 from src.services.users import Users as UserService
-from src.dependency import get_current_user
+from src.dependency import authentic_user
 
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -68,8 +68,7 @@ async def login_user(form_data: OAuth2PasswordRequestForm = Depends()):
     """
     s = UserService(user_id=form_data.username, user_pw=form_data.password)
     user = s.select_user()
-    print(user)
-    print(user.user_id, user.user_pw, user.description)
+
     print(decode_hashed_pw(form_data.password, user.user_pw))
 
     if decode_hashed_pw(form_data.password, user.user_pw):
@@ -86,5 +85,5 @@ async def login_user(form_data: OAuth2PasswordRequestForm = Depends()):
 
 
 @router.get("/me", response_model=UsersModel)
-async def get_my_info(user: UsersModel = Depends(get_current_user)):
+async def get_my_info(user: UsersModel = Depends(authentic_user)):
     return user
