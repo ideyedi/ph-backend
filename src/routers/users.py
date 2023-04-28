@@ -1,8 +1,10 @@
 from fastapi import (APIRouter,
-                     Depends,
+                     status,
                      HTTPException,
                      )
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import (PlainTextResponse,
+                               JSONResponse,
+                               )
 from fastapi.security import OAuth2PasswordRequestForm
 
 from sqlalchemy.orm import Session
@@ -15,6 +17,8 @@ from src.utils import (get_hashed_pw,
                        create_access_token,
                        create_refresh_token,
                        )
+
+from src.services.users import Users as UserService
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -47,17 +51,10 @@ async def get_user_info(data: ModelUsers):
     탈퇴
     :return:
     """
-    sess: Session = next(get_db())
-    # 아이디 패스워드가 맞는지 확인 후 삭제하는 로직 추가 필요
-    ret = delete(DAOUsers).filter(DAOUsers.user_id == f"{data.user_id}")
-
-    for item in sess.scalars(ret):
-        print(item)
-
-    pass
+    o = UserService(user_id=data.user_id)
 
 
-@router.post("/session", response_class=PlainTextResponse, summary="login user")
+@router.post("/session", response_class=JSONResponse, summary="login user")
 async def login_user(user_id: int, user_pw: str):
     """
     Login
@@ -65,25 +62,23 @@ async def login_user(user_id: int, user_pw: str):
     :param user_pw:
     :return:
     """
-    sess: Session = next(get_db())
-
-    ret = select(DAOUsers).filter(DAOUsers.user_id == f"{user_id}")
-
-    # 아이디가 없으면 로그인 불가 처리
-    for item in sess.scalars(ret):
-        print(int(item.user_id), str(item.user_pw), item.description)
-        user = ModelUsers(user_id=int(item.user_id), user_pw=str(item.user_pw), decription=str(item.description))
-
+    o = UserService(user_id=user_id)
+    user = o.select_user()
     print(user)
     print(user.user_id, user.user_pw, user.description)
     print(decode_hashed_pw(user_pw, user.user_pw))
+
     if decode_hashed_pw(user_pw, user.user_pw):
         tokens = {
             "access_token": create_access_token(user.user_id),
             "refresh_token": create_refresh_token(user.user_id),
         }
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+        )
 
-    return "OK"
+    return tokens
 
 
 @router.delete("/session", response_class=PlainTextResponse, summary="logout user")
