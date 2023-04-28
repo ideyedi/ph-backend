@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 
 from pydantic import ValidationError
 from jose import jwt
-from typing import Union, Any
+from typing import Union, Any, Optional
 
 from src.utils import (ALGORITHM, JWT_SECRET_KEY, JWT_REFRESH_SECRET_KEY)
 from src.db import get_db
@@ -40,19 +40,37 @@ async def get_current_user(token: str = Depends(reuseable_oauth)):
     sess: Session = next(get_db())
 
     user: Union[dict[str, Any], None]
-
 # ---- JWT Baerer 추가 작업 필요, 일단 기능 구현부터
 
 
 @router.post("")
 async def create_product(data: ProductsModel):
     s = ProdService(data)
-    ret = s.create_product()
+    ret = s.create()
 
+    return {"products": ret}
+
+
+@router.get("")
+async def get_product(user_id: Optional[int] = 3, page: Optional[int] = 1):
+    s = ProdService(ProductsModel)
+    print(user_id, page)
+    ret = s.get_by_userId(user_id=user_id, page=page)
+    print(ret)
     return ret
 
 
-@router.get("", response_class=PlainTextResponse)
-async def get_product(user_id: str):
+@router.delete("")
+async def delete_product():
+    pass
 
-    return "OK"
+
+@router.patch("")
+async def update_product(prod_id: int, data: ProductsModel):
+    # JWT에 해당하는 유저에 따라서 값을 조회하도록 구현
+    s = ProdService(data)
+    #model = s.get_by_prodId(prod_id)
+    ret = s.update(prod_id, data)
+    print(ret)
+
+    return ret
