@@ -10,4 +10,4 @@ def get_env():
 def test_python_version():
     from src.version import __py_ver__
     import sys
-    assert sys.version_info >= (3, 8)
+    assert sys.version_info >= __py_ver__
