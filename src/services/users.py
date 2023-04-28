@@ -2,16 +2,14 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select, delete
 
 from src.db import get_db
-from src.models.users import DAOUsers, ModelUsers
+from src.models.users import DAOUsers, UsersModel
 
 
 class Users:
-    user_id: str
-    user_pw: str
 
-    def __init__(self, uid: str, upw: str = None):
-        self.user_id = uid
-        self.user_pw = upw
+    def __init__(self, user_id: str, user_pw: str = None):
+        self.user_id = user_id
+        self.user_pw = user_pw
 
     def _check_user_info(self):
         """
@@ -20,13 +18,13 @@ class Users:
         """
         pass
 
-    def select_user(self) -> ModelUsers:
+    def select_user(self) -> UsersModel:
         sess: Session = next(get_db())
 
         # 아이디가 없으면 로그인 불가 처리, 데이터가 없을 경우 예외 처리도 필요
         ret = select(DAOUsers).filter(DAOUsers.user_id == f"{self.user_id}")
 
-        return ModelUsers(user_id=sess.scalar(ret).user_id,
+        return UsersModel(user_id=sess.scalar(ret).user_id,
                           user_pw=sess.scalar(ret).user_pw,
                           description=sess.scalar(ret).description)
 

@@ -3,7 +3,6 @@ from fastapi import (APIRouter,
                      HTTPException,
                      status
                      )
-from fastapi.security import OAuth2PasswordBearer
 from typing import Optional
 
 from src.models.products import ProductsModel

@@ -20,7 +20,7 @@ class DAOUsers(Base):
         return f"User(id={self.id}, user_id={self.user_id}, user_pw={self.user_pw}, description={self.description})"
 
 
-class ModelUsers(BaseModel):
+class UsersModel(BaseModel):
     user_id: int
     user_pw: str
     description: Optional[str]

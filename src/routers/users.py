@@ -13,7 +13,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 
 from src.db import get_db
-from src.models.users import DAOUsers, ModelUsers
+from src.models.users import DAOUsers, UsersModel
 from src.utils import (get_hashed_pw,
                        decode_hashed_pw,
                        create_access_token,
@@ -28,7 +28,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.post("")
-async def signup_user(data: ModelUsers):
+async def signup_user(data: UsersModel):
     """
     회원 가입
     :param data:
@@ -50,7 +50,7 @@ async def signup_user(data: ModelUsers):
 
 
 @router.get("")
-async def get_user_info(data: ModelUsers):
+async def get_user_info(data: UsersModel):
     """
     탈퇴
     :return:
@@ -66,7 +66,7 @@ async def login_user(form_data: OAuth2PasswordRequestForm = Depends()):
     :param user_pw:
     :return:
     """
-    s = UserService(uid=form_data.username, upw=form_data.password)
+    s = UserService(user_id=form_data.username, user_pw=form_data.password)
     user = s.select_user()
     print(user)
     print(user.user_id, user.user_pw, user.description)
@@ -85,15 +85,6 @@ async def login_user(form_data: OAuth2PasswordRequestForm = Depends()):
     return tokens
 
 
-@router.delete("/session", response_class=PlainTextResponse, summary="logout user")
-async def logout_user():
-    """
-    Logout
-    :return:
-    """
-    pass
-
-
-@router.get("/me", response_model=ModelUsers)
-async def get_my_info(user: ModelUsers = Depends(get_current_user)):
-    pass
+@router.get("/me", response_model=UsersModel)
+async def get_my_info(user: UsersModel = Depends(get_current_user)):
+    return user.user_id
