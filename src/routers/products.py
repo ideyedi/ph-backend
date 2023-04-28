@@ -61,15 +61,17 @@ async def get_product(user_id: Optional[int] = 3, page: Optional[int] = 1):
 
 
 @router.delete("")
-async def delete_product():
-    pass
+async def delete_product(prod_id: int):
+    s = ProdService(ProductsModel)
+    ret = s.delete(prod_id)
+    print(ret)
+    return ret
 
 
 @router.patch("")
 async def update_product(prod_id: int, data: ProductsModel):
     # JWT에 해당하는 유저에 따라서 값을 조회하도록 구현
     s = ProdService(data)
-    #model = s.get_by_prodId(prod_id)
     ret = s.update(prod_id, data)
     print(ret)
 

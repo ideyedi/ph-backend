@@ -76,10 +76,17 @@ class Products:
 
     def update(self, prod_id: int, data: ProductsModel):
         sess: Session = next(get_db())
-        ret = sess.execute(update(DAOProducts).where(DAOProducts.id == f"{prod_id}").values(name=f"{data.name}")
-                           ).scalar_one()
+        ret = sess.execute(update(DAOProducts)
+                           .where(DAOProducts.id == f"{prod_id}")
+                           .values(name=f"{data.name}"))
+
+        sess.commit()
+
         return ret
 
     def delete(self, prod_id: int):
-
-        pass
+        sess: Session = next(get_db())
+        ret = sess.execute(delete(DAOProducts)
+                           .where(DAOProducts.id == f"{prod_id}"))
+        sess.commit()
+        return ret
