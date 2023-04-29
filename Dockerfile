@@ -7,7 +7,7 @@ RUN python get-pip.py
 RUN pip install --upgrade pip
 
 # git clone을 도커에서 수행해야
-RUN git clone https://github.com/ideyedi/awx-open-api.git ./application
+RUN git clone https://github.com/ideyedi/ph-backend.git ./application
 
 WORKDIR /opt/application
 RUN pip install --no-cache-dir -r requirements.txt
