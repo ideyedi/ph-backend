@@ -11,4 +11,4 @@ RUN git clone https://github.com/ideyedi/ph-backend.git ./application
 
 WORKDIR /opt/application
 RUN pip install --no-cache-dir -r requirements.txt
-CMD ["uvicorn", "app.main:app", "--port=8080", "--host=0.0.0.0", "--reload"]
+CMD ["uvicorn", "src.main:app", "--port=8080", "--host=0.0.0.0", "--reload"]
