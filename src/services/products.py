@@ -93,6 +93,9 @@ class Products:
 
         return searched
 
+    def get_by_cho(self):
+        pass
+
     def update(self, prod_id: int, data: ProductsModel):
         sess: Session = next(get_db())
         ret = sess.execute(update(DAOProducts)

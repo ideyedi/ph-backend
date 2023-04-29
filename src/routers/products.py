@@ -65,15 +65,15 @@ async def search_by_name(prod_name: str, user: UsersModel = Depends(authentic_us
     :param user:
     :return:
     """
-    if prod_name[0] in COMPATIBILITY_CHOSUNG:
-        print('cho')
-    else:
-        print('normal')
-        
     s = ProdService(ProductsModel)
     s.prod.name = prod_name
     s.user_id = user.id
 
-    ret = s.get_by_prod_name()
+    if prod_name[0] in COMPATIBILITY_CHOSUNG:
+        print('cho')
+        ret = s.get_by_cho()
+    else:
+        print('normal')
+        ret = s.get_by_prod_name()
 
     return "OK"
