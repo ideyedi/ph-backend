@@ -8,6 +8,7 @@ from src.services.products import Products as ProdService
 
 from src.models.users import UsersModel
 from src.dependency import authentic_user
+from src.config import COMPATIBILITY_CHOSUNG
 
 router = APIRouter(prefix="/products", tags=["products"])
 
@@ -58,10 +59,21 @@ async def update_product(prod_id: int, data: ProductsModel, user: UsersModel = D
 
 @router.get("/search")
 async def search_by_name(prod_name: str, user: UsersModel = Depends(authentic_user)):
+    """
+    'prod_name' 값에 따라 초성 검색 여부를 구분
+    :param prod_name:
+    :param user:
+    :return:
+    """
+    if prod_name[0] in COMPATIBILITY_CHOSUNG:
+        print('cho')
+    else:
+        print('normal')
+        
     s = ProdService(ProductsModel)
     s.prod.name = prod_name
     s.user_id = user.id
 
     ret = s.get_by_prod_name()
 
-    return ret
+    return "OK"

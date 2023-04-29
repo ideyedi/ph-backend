@@ -4,3 +4,10 @@ from typing_extensions import Literal
 product_sizes = ["small", "large"]
 
 pagination = 10
+
+COMPATIBILITY_CHOSUNG = [
+    0x3131, 0x3132, 0x3134, 0x3137, 0x3138,     # ㄱ, ㄲ, ㄴ, ㄷ, ㄸ
+    0x3139, 0x3141, 0x3142, 0x3143, 0x3145,     # ㄹ, ㅁ, ㅂ, ㅃ, ㅅ
+    0x3146, 0x3147, 0x3148, 0x3149, 0x314A,     # ㅆ, ㅇ, ㅈ, ㅉ, ㅊ
+    0x314B, 0x314C, 0x314D, 0x314E              # ㅋ, ㅌ, ㅍ, ㅎ
+]

@@ -1,6 +1,7 @@
 from typing import List
 
 from sqlalchemy.orm import Session
+from sqlalchemy.sql import text
 from sqlalchemy import select, delete, insert, update
 
 from src.config import pagination
@@ -18,7 +19,6 @@ class Products:
     def create(self):
         sess: Session = next(get_db())
 
-        print("here?")
         product = DAOProducts(category=self.prod.category,
                               price=self.prod.price,
                               cost=self.prod.cost,
@@ -73,11 +73,23 @@ class Products:
     def get_by_prod_name(self):
         searched = []
         sess: Session = next(get_db())
-        ret = select(DAOProducts).where(DAOProducts.user_id == f"{self.user_id}").where(DAOProducts.name.like(f"%{self.prod.name}%"))
+        """
+        ret = sess.execute(select(DAOProducts)
+                           .where(DAOProducts.user_id == f"{self.user_id}")
+                           .where(DAOProducts.name.like(f"%{self.prod.name}%"))
+                           .where(DAOProducts.name.rlike(f"^ㄴ") or (DAOProducts.name >= '나' and DAOProducts < '다'))
+                           )
+        """
+        r_sql = text(f"""
+        """)
 
-        for item in sess.scalars(ret):
-            print(item.__repr__())
-            searched.append(item)
+        print(__name__, self.prod.name)
+        print(__name__, r_sql)
+
+        ret = sess.execute(r_sql)
+        for item in ret:
+            print(item)
+            searched.append((item))
 
         return searched
 
