@@ -18,14 +18,14 @@ class Products:
     def create(self):
         sess: Session = next(get_db())
 
-        # MySQL 한글 처리 필요
+        print("here?")
         product = DAOProducts(category=self.prod.category,
                               price=self.prod.price,
                               cost=self.prod.cost,
                               name=self.prod.name,
                               description=self.prod.description,
                               barcode=self.prod.barcode,
-                              expiration_data=self.prod.expiration_data,
+                              expiration_date=self.prod.expiration_date,
                               size=self.prod.size,
                               user_id=self.user_id)
         print(product.__repr__())
@@ -35,11 +35,11 @@ class Products:
         # Need to success check
         return "OK"
 
-    def get_by_userId(self, user_id: int, page: int = 1) -> List[ProductsModel]:
+    def get_by_user_id(self, page: int = 1) -> List[ProductsModel]:
         result = []
 
         sess: Session = next(get_db())
-        ret = select(DAOProducts).where(DAOProducts.user_id == f"{user_id}")
+        ret = select(DAOProducts).where(DAOProducts.user_id == f"{self.user_id}")
 
         # Make List & Pagination
         # 쿼리에서 한번에 처리할 수 있으면 더 좋을 거 같은데.
@@ -51,7 +51,7 @@ class Products:
                                   name=item.name,
                                   description=item.description,
                                   barcode=item.barcode,
-                                  expiration_data=item.expiration_data,
+                                  expiration_data=item.expiration_date,
                                   size=item.size)
             result.append(model)
 
@@ -70,15 +70,32 @@ class Products:
 
         return result
 
+    def get_by_prod_name(self):
+        searched = []
+        sess: Session = next(get_db())
+        ret = select(DAOProducts).where(DAOProducts.user_id == f"{self.user_id}").where(DAOProducts.name.like(f"%{self.prod.name}%"))
+
+        for item in sess.scalars(ret):
+            print(item.__repr__())
+            searched.append(item)
+
+        return searched
+
     def update(self, prod_id: int, data: ProductsModel):
         sess: Session = next(get_db())
         ret = sess.execute(update(DAOProducts)
                            .where(DAOProducts.id == f"{prod_id}")
                            .where(DAOProducts.user_id == f"{self.user_id}")
-                           .values(name=f"{data.name}"))
+                           .values(category=f"{data.category}",
+                                   name=f"{data.name}",
+                                   price=f"{data.price}",
+                                   cost=f"{data.cost}",
+                                   description=f"{data.description}",
+                                   barcode=f"{data.barcode}",
+                                   expiration_date=f"{data.expiration_date}"))
 
+        # user의 product 아닐때 raise error 처리해주면 더 좋을 듯
         sess.commit()
-
         return ret
 
     def delete(self, prod_id: int):

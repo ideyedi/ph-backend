@@ -14,6 +14,7 @@ router = APIRouter(prefix="/products", tags=["products"])
 
 @router.post("")
 async def create_product(data: ProductsModel, user: UsersModel = Depends(authentic_user)):
+    print(__name__)
     s = ProdService(data)
     s.user_id = user.id
     ret = s.create()
@@ -27,7 +28,7 @@ async def get_product(page: Optional[int] = 1, user: UsersModel = Depends(authen
     s.user_id = user.id
 
     print(user.id, page)
-    ret = s.get_by_userId(user_id=user.id, page=page)
+    ret = s.get_by_user_id(page=page)
     print(ret)
     return ret
 
@@ -48,7 +49,7 @@ async def update_product(prod_id: int, data: ProductsModel, user: UsersModel = D
     s = ProdService(data)
     s.user_id = user.id
 
-    print(__name__, s.prod.user_id)
+    print(__name__, s.user_id)
     ret = s.update(prod_id, data)
     print(ret)
 
@@ -56,5 +57,11 @@ async def update_product(prod_id: int, data: ProductsModel, user: UsersModel = D
 
 
 @router.get("/search")
-async def search_by_name():
-    pass
+async def search_by_name(prod_name: str, user: UsersModel = Depends(authentic_user)):
+    s = ProdService(ProductsModel)
+    s.prod.name = prod_name
+    s.user_id = user.id
+
+    ret = s.get_by_prod_name()
+
+    return ret

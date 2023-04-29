@@ -1,5 +1,5 @@
 from typing import Optional, Literal
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from datetime import date
 
 from sqlalchemy.ext.declarative import declarative_base
@@ -21,7 +21,7 @@ class DAOProducts(Base):
     name = Column(String)
     description = Column(String)
     barcode = Column(String)
-    expiration_data = Column(DateTime)
+    expiration_date = Column(DateTime)
     size = Column(String)
     user_id = Column(Integer)
 
@@ -33,8 +33,8 @@ class ProductsModel(BaseModel):
     category: str
     price: int
     cost: int
-    name: str
+    name: str = Field(..., description="이름")
     description: Optional[str]
     barcode: str
-    expiration_data: date
+    expiration_date: date
     size: Literal["small", "large"] = "small"
