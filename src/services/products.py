@@ -10,11 +10,12 @@ from src.models.products import DAOProducts, ProductsModel
 
 class Products:
     prod: ProductsModel
+    user_id: int
 
     def __init__(self, data: ProductsModel):
         self.prod = data
 
-    def create(self, user_id: int = 3):
+    def create(self):
         sess: Session = next(get_db())
 
         # MySQL 한글 처리 필요
@@ -26,7 +27,7 @@ class Products:
                               barcode=self.prod.barcode,
                               expiration_data=self.prod.expiration_data,
                               size=self.prod.size,
-                              user_id=user_id)
+                              user_id=self.user_id)
         print(product.__repr__())
         sess.add(product)
         sess.commit()
@@ -38,7 +39,7 @@ class Products:
         result = []
 
         sess: Session = next(get_db())
-        ret = select(DAOProducts).filter(DAOProducts.user_id == f"{user_id}")
+        ret = select(DAOProducts).where(DAOProducts.user_id == f"{user_id}")
 
         # Make List & Pagination
         # 쿼리에서 한번에 처리할 수 있으면 더 좋을 거 같은데.
@@ -69,15 +70,11 @@ class Products:
 
         return result
 
-    def get_by_prodId(self, prod_id: int) -> ProductsModel:
-        sess: Session = next(get_db())
-        ret: ProductsModel = sess.scalar(select(DAOProducts).filter(DAOProducts.id == f"{prod_id}"))
-        return ret
-
     def update(self, prod_id: int, data: ProductsModel):
         sess: Session = next(get_db())
         ret = sess.execute(update(DAOProducts)
                            .where(DAOProducts.id == f"{prod_id}")
+                           .where(DAOProducts.user_id == f"{self.user_id}")
                            .values(name=f"{data.name}"))
 
         sess.commit()
@@ -87,6 +84,8 @@ class Products:
     def delete(self, prod_id: int):
         sess: Session = next(get_db())
         ret = sess.execute(delete(DAOProducts)
-                           .where(DAOProducts.id == f"{prod_id}"))
+                           .where(DAOProducts.id == f"{prod_id}")
+                           .where(DAOProducts.user_id == f"{self.user_id}"))
+        # user의 product 아닐때 raise error 처리해주면 더 좋을 듯
         sess.commit()
         return ret

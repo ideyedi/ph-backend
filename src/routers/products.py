@@ -15,6 +15,7 @@ router = APIRouter(prefix="/products", tags=["products"])
 @router.post("")
 async def create_product(data: ProductsModel, user: UsersModel = Depends(authentic_user)):
     s = ProdService(data)
+    s.user_id = user.id
     ret = s.create()
 
     return {"products": ret}
@@ -23,6 +24,8 @@ async def create_product(data: ProductsModel, user: UsersModel = Depends(authent
 @router.get("")
 async def get_product(page: Optional[int] = 1, user: UsersModel = Depends(authentic_user)):
     s = ProdService(ProductsModel)
+    s.user_id = user.id
+
     print(user.id, page)
     ret = s.get_by_userId(user_id=user.id, page=page)
     print(ret)
@@ -32,8 +35,10 @@ async def get_product(page: Optional[int] = 1, user: UsersModel = Depends(authen
 @router.delete("")
 async def delete_product(prod_id: int, user: UsersModel = Depends(authentic_user)):
     s = ProdService(ProductsModel)
+    s.user_id = user.id
+
     ret = s.delete(prod_id)
-    print(ret)
+    print(__name__, ret)
     return ret
 
 
@@ -41,7 +46,15 @@ async def delete_product(prod_id: int, user: UsersModel = Depends(authentic_user
 async def update_product(prod_id: int, data: ProductsModel, user: UsersModel = Depends(authentic_user)):
     # JWT에 해당하는 유저에 따라서 값을 조회하도록 구현
     s = ProdService(data)
+    s.user_id = user.id
+
+    print(__name__, s.prod.user_id)
     ret = s.update(prod_id, data)
     print(ret)
 
     return ret
+
+
+@router.get("/search")
+async def search_by_name():
+    pass
