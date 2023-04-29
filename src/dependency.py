@@ -31,7 +31,7 @@ async def authentic_user(token: str = Depends(oauth2_scheme)):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN)
 
     s = UserService(user_id=token_data.sub, user_pw=None)
-    user: UsersModel = s.select_user()
+    user: UsersModel = s.select()
     print(user)
 
     if user is None:

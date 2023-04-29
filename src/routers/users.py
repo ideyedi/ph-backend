@@ -1,19 +1,13 @@
+from typing import Optional
+
 from fastapi import (APIRouter,
                      status,
                      HTTPException,
                      Depends
                      )
-from fastapi.responses import (PlainTextResponse,
-                               JSONResponse,
-                               RedirectResponse,
-                               )
 from fastapi.security import OAuth2PasswordRequestForm
 
-from sqlalchemy.orm import Session
-from sqlalchemy import select
-
-from src.db import get_db
-from src.models.users import DAOUsers, UsersModel
+from src.models.users import UsersModel
 from src.utils import (get_hashed_pw,
                        decode_hashed_pw,
                        create_access_token,
@@ -28,46 +22,29 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.post("")
-async def signup_user(data: UsersModel):
+async def signup_user(id: int, pw: str, des: Optional[str] = None):
     """
     회원 가입
     :param data:
     :return:
     """
-    sess: Session = next(get_db())
+    s = UserService(user_id=id, user_pw=pw, description=des)
+    ret: UsersModel = s.create()
 
-    ret = select(DAOUsers).filter(DAOUsers.user_id == f"{data.user_id}")
-    # 데이터가 있으면 회원가입 불가 처리
-    for item in sess.scalars(ret):
-        print(item)
-
-    user = DAOUsers(user_id=data.user_id, user_pw=get_hashed_pw(data.user_pw), description=data.description)
-    # Commit & Save
-    sess.add(user)
-    sess.commit()
-
-    return "OK"
-
-
-@router.get("")
-async def get_user_info(data: UsersModel):
-    """
-    탈퇴
-    :return:
-    """
-    o = UserService(user_id=data.user_id)
+    return ret
 
 
 @router.post("/session", summary="login user")
 async def login_user(form_data: OAuth2PasswordRequestForm = Depends()):
     """
     Login
+    :param form_data:
     :param user_id:
     :param user_pw:
     :return:
     """
     s = UserService(user_id=form_data.username, user_pw=form_data.password)
-    user = s.select_user()
+    user = s.select()
 
     print(decode_hashed_pw(form_data.password, user.user_pw))
 
